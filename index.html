@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacy Fulfillment — A Process Bottleneck Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #23282A;
+    --paper: #FAF8F4;
+    --paper-raised: #FFFFFF;
+    --navy: #1B3A4B;
+    --navy-deep: #12262F;
+    --sage: #7A9B8E;
+    --sage-pale: #E7EEEA;
+    --rust: #C4622D;
+    --rust-pale: #F5E2D6;
+    --line: #DDD6C9;
+    --muted: #6B6459;
+
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- Sticky nav ---------- */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 248, 244, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .nav-mark {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--navy);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+  }
+  .nav-links a {
+    display: block;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .nav-links a:hover { background: var(--sage-pale); color: var(--navy); }
+  .nav-links a.active { background: var(--navy); color: var(--paper); }
+
+  @media (max-width: 640px) {
+    .nav-inner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 20px; }
+    .nav-links { flex-wrap: wrap; }
+    .wrap { padding: 0 20px; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 88px 0 72px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rust);
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5vw, 3.2rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    color: var(--navy-deep);
+    max-width: 15ch;
+  }
+  .hero-sub {
+    margin-top: 22px;
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 52ch;
+    line-height: 1.55;
+  }
+  .hero-meta {
+    margin-top: 36px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta div { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .hero-meta span { display: block; color: var(--navy); font-weight: 600; margin-top: 3px; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 76px 0; border-bottom: 1px solid var(--line); }
+  section:last-of-type { border-bottom: none; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--sage);
+    font-weight: 600;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3.5vw, 2.15rem);
+    color: var(--navy-deep);
+  }
+  .section-dek {
+    color: var(--muted);
+    font-size: 1.02rem;
+    max-width: 58ch;
+    margin: 14px 0 40px;
+  }
+
+  h3.sub {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin: 44px 0 16px;
+  }
+  h3.sub:first-of-type { margin-top: 0; }
+
+  p { margin-bottom: 16px; color: var(--ink); }
+  p.lead { font-size: 1.06rem; }
+
+  strong { color: var(--navy-deep); font-weight: 600; }
+
+  /* ---------- Flow steps ---------- */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 28px 0 8px;
+  }
+  .flow-step {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--navy);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .flow-arrow { color: var(--sage); font-size: 1.1rem; }
+
+  /* ---------- Callout / stat ---------- */
+  .callout {
+    background: var(--sage-pale);
+    border-left: 3px solid var(--sage);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 24px 0;
+    font-size: 0.98rem;
+  }
+  .callout.problem {
+    background: var(--rust-pale);
+    border-left-color: var(--rust);
+  }
+
+  .big-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--navy-deep);
+    color: var(--paper);
+    border-radius: 14px;
+    padding: 40px 36px;
+    margin: 36px 0;
+  }
+  .big-stat .num {
+    font-family: var(--mono);
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 600;
+    color: #E8A87C;
+    line-height: 1;
+  }
+  .big-stat .label {
+    font-size: 1rem;
+    color: #C9D6D9;
+    max-width: 32ch;
+    line-height: 1.5;
+  }
+  .big-stat .label b { color: #fff; }
+
+  /* ---------- Image blocks ---------- */
+  figure { margin: 32px 0; }
+  figure img {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+    display: block;
+  }
+  figcaption {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  figcaption b { color: var(--navy); }
+
+  .placeholder-img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: 10px;
+    border: 1.5px dashed var(--line);
+    background: repeating-linear-gradient(45deg, #F2EFE8, #F2EFE8 10px, #EEEAE1 10px, #EEEAE1 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* ---------- Video ---------- */
+  .video-block {
+    margin: 32px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .video-block video { width: 100%; display: block; background: #000; }
+  .video-caption {
+    background: var(--paper-raised);
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+  }
+
+  .video-placeholder {
+    margin: 32px 0;
+    border-radius: 10px;
+    border: 1.5px dashed var(--line);
+    background: var(--paper-raised);
+    aspect-ratio: 16/9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    color: var(--muted);
+  }
+  .video-placeholder .vp-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--sage-pale);
+    color: var(--sage);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    padding-left: 4px;
+  }
+  .video-placeholder .vp-text {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--navy);
+    line-height: 1.5;
+  }
+  .video-placeholder .vp-text span {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  /* ---------- Metric cards ---------- */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 28px 0;
+  }
+  @media (max-width: 640px) { .metric-grid { grid-template-columns: 1fr; } }
+  .metric-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .metric-card .mnum {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .metric-card .mlabel {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ---------- Recommendation cards ---------- */
+  .rec-list { display: flex; flex-direction: column; gap: 16px; margin: 28px 0; }
+  .rec-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .rec-card h4 {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--navy-deep);
+    margin-bottom: 8px;
+  }
+  .rec-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--sage);
+    background: var(--sage-pale);
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  /* ---------- Closing ---------- */
+  .closing {
+    background: var(--navy-deep);
+    color: var(--paper);
+    padding: 64px 0;
+  }
+  .closing h2 { color: #fff; }
+  .closing p { color: #C9D6D9; }
+  .closing .section-num { color: var(--rust); }
+
+  footer {
+    padding: 32px 0 48px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  ::selection { background: var(--rust-pale); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-mark">PHARMACY&nbsp;FULFILLMENT&nbsp;/&nbsp;CASE&nbsp;STUDY</div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#process" data-target="process">The Process</a></li>
+      <li><a href="#analysis" data-target="analysis">The Analysis</a></li>
+      <li><a href="#recommendation" data-target="recommendation">The Recommendation</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <div class="eyebrow">Process Improvement Case Study</div>
+  <h1>Why a five‑minute prescription takes three hours to fill</h1>
+  <p class="hero-sub">A process-mining analysis of retail pharmacy fulfillment — where the bottleneck actually forms, and what closes the gap between "filled" and "picked up."</p>
+  <div class="hero-meta">
+    <div>Method<span>Process mining, Disco</span></div>
+    <div>Sample<span>200 synthetic prescriptions</span></div>
+    <div>Window<span>~1 month simulated volume</span></div>
+  </div>
+</header>
+
+<section id="process" class="wrap">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <h2>The Process</h2>
+  </div>
+  <p class="section-dek">What happens between a prescription being sent and a customer walking out with it — and where that flow breaks down under real conditions.</p>
+
+  <h3 class="sub">Process Description</h3>
+  <p class="lead">A prescription enters the pharmacy one of two ways — sent electronically by a doctor's office, or dropped off in person. From there it moves through a short, familiar sequence:</p>
+
+  <div class="flow">
+    <div class="flow-step">Prescription Submitted</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Insurance Verified</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Prescription Filled</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Ready for Pickup</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Picked Up</div>
+  </div>
+
+  <p>On paper, that's four short steps. In practice, "Insurance Verified" is a fork in the road, not a single step — it can branch into a prior authorization request, a Medicaid coverage check, a pharmacist consultation, or a rejected claim that has to be resubmitted after a call to the doctor's office. Self-pay customers skip verification entirely. Each branch adds real, compounding time before the prescription can be filled at all.</p>
+
+  <h3 class="sub">The Bottleneck</h3>
+  <p class="lead">Every one of those branching steps — verification, consultation, prior auth, rejection handling — routes through the <strong>same single pharmacist</strong>. Techs can handle intake and pickup, but only a licensed pharmacist can verify coverage, approve a prior authorization, or consult with a patient.</p>
+
+  <div class="callout problem">
+    <strong>One person, five jobs.</strong> The pharmacist is simultaneously verifying insurance, answering phone calls, counseling patients, reviewing prior authorizations, and filling medication — often for a dozen prescriptions in flight at once. When several of those prescriptions need pharmacist attention in the same hour, everything behind them in the queue waits.
+  </div>
+
+  <p>This is a classic single-resource bottleneck: demand for the pharmacist's time is far more variable than demand for the tech's time, but capacity for both is fixed. The result isn't a slow process — it's a fast process with an overloaded gatekeeper.</p>
+</section>
+
+<section id="analysis" class="wrap">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <h2>The Analysis</h2>
+  </div>
+  <p class="section-dek">We modeled 200 synthetic prescriptions moving through this flow over a simulated month, with a single shared pharmacist resource, real insurance-type branching, and queueing built in — then mined the resulting event log in Disco.</p>
+
+  <h3 class="sub">Disco Maps</h3>
+  <p>The frequency map below shows every path a prescription can take. Most (85%) follow one of the faster branches. But five distinct exception paths exist — and each one routes back through the pharmacist before a prescription can be filled.</p>
+
+  <figure>
+    <img src="images/disco-frequency.jpg" alt="Disco frequency map showing prescription flow paths and case counts">
+    <figcaption><b>Fig. 1 — Frequency map.</b> 200 cases, 5 branching paths, all converging on Prescription Filled. Numbers show case counts per path.</figcaption>
+  </figure>
+
+  <p>Re-coloring the same map by <b>median duration</b> per case — rather than raw case count — makes the actual time cost of each branch visible for the first time.</p>
+
+  <figure>
+    <img src="images/disco-median.jpg" alt="Disco performance map showing median duration per process step, highlighting a 48-minute bottleneck at prior authorization">
+    <figcaption><b>Fig. 2 — Performance map (median duration).</b> Darker, thicker edges mark slower transitions. The Prior Authorization step stands out sharply from the rest of the map.</figcaption>
+  </figure>
+
+  <h3 class="sub">Insight</h3>
+
+  <div class="big-stat">
+    <div class="num">48 min</div>
+    <div class="label">median time a prescription sits <b>after</b> prior authorization is approved, waiting for the pharmacist to log it and move it into fill — the single slowest transition anywhere in the process.</div>
+  </div>
+
+  <p>Two findings stand out once queueing is modeled properly:</p>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="mnum">48 min</div>
+      <div class="mlabel">Prior auth approved → filled (median) — the sharpest single bottleneck</div>
+    </div>
+    <div class="metric-card">
+      <div class="mnum">2 hrs</div>
+      <div class="mlabel">Doctor contacted → resubmitted (median) — worst-case rejection path</div>
+    </div>
+    <div class="metric-card">
+      <div class="mnum">35%</div>
+      <div class="mlabel">of prescriptions experienced real queue wait for a busy pharmacist</div>
+    </div>
+  </div>
+
+  <p>The queueing effect concentrates at predictable hours — late morning, early afternoon, and especially <b>6&nbsp;PM</b>, when evening pickups and new drop-offs collide. This matches a common real-world complaint: a prescription submitted mid-afternoon isn't ready until hours later, even though no single step in the process takes more than a few minutes on its own. The delay isn't in any one task — it's in how many tasks are waiting for the same person.</p>
+
+  <div class="callout">
+    <b>A modeling note.</b> This analysis isolates delay to exception paths and queueing for clarity. Real pharmacies also juggle multiple intake channels — walk-in, drive-thru, mail-order — competing for the same pharmacist, and staff regularly get pulled off one task mid-way through by a phone call or a walk-up question. Both would compound the queueing effect modeled here; we scoped to a single channel and didn't attempt to simulate task-switching, since neither changes the core finding.
+  </div>
+
+  <h3 class="sub">Live Walkthrough</h3>
+  <p>A screen recording of Disco's animation view — cases flowing through the map in real time, showing exactly where volume piles up over a simulated day — will live here.</p>
+  <div class="video-placeholder">
+    <div class="vp-icon">▶</div>
+    <div class="vp-text">Animation walkthrough<br><span>Coming soon</span></div>
+  </div>
+</section>
+
+<section id="recommendation" class="wrap">
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <h2>The Recommendation</h2>
+  </div>
+  <p class="section-dek">Three changes that target where the delay actually forms — without asking the pharmacist to do more, faster.</p>
+
+  <h3 class="sub">Proposed Fix</h3>
+
+  <div class="rec-list">
+    <div class="rec-card">
+      <span class="rec-tag">Reduce variability</span>
+      <h4>Auto-validate insurance for returning customers</h4>
+      <p>Roughly 45% of the delay traces back to insurance verification branching — prior auth, rejection, Medicaid checks. For a customer with the pharmacy listed as their primary provider, coverage status rarely changes visit to visit. Pre-validating on file removes an entire branch from the flow for repeat customers, the same way standardizing proposal templates reduces variability in a services process.</p>
+    </div>
+    <div class="rec-card">
+      <span class="rec-tag">Reduce queueing</span>
+      <h4>Route routine approvals off the pharmacist</h4>
+      <p>Logging an already-approved prior authorization doesn't require a pharmacist's clinical judgment — only their signature or system entry. Letting a trained tech handle that logging step, with the pharmacist reviewing exceptions only, directly targets the 48-minute bottleneck without touching headcount.</p>
+    </div>
+    <div class="rec-card">
+      <span class="rec-tag">Manage expectations</span>
+      <h4>Real-time queue visibility</h4>
+      <p>A status tracker that reflects actual queue position — not just "in progress" — turns an invisible wait into a predictable one. Paired with a pickup notification that only fires once a prescription is truly ready, this doesn't shrink the bottleneck, but it removes the second-order cost: wasted trips and repeat phone calls that add even more load to the same overloaded pharmacist.</p>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2>Scaling the Idea</h2>
+    </div>
+    <p style="max-width: 56ch; font-size: 1.02rem;">None of these fixes require new headcount — they require re-routing work away from the one resource every path depends on. That's a pattern, not a one-pharmacy fix: any workflow automation tool that pre-validates routine cases and surfaces real queue status could sell into pharmacy chains the same way, turning a single-location process fix into a platform pitch.</p>
+  </div>
+</section>
+
+<footer class="wrap">
+  MSIS 503 — Group Assignment · Process Mining Case Study · Built with Disco
+</footer>
+
+<script>
+  const sections = ['process', 'analysis', 'recommendation'].map(id => document.getElementById(id));
+  const links = document.querySelectorAll('.nav-links a');
+
+  function setActive() {
+    let current = sections[0].id;
+    const scrollY = window.scrollY + 120;
+    for (const sec of sections) {
+      if (sec.offsetTop <= scrollY) current = sec.id;
+    }
+    links.forEach(link => {
+      link.classList.toggle('active', link.dataset.target === current);
+    });
+  }
+  window.addEventListener('scroll', setActive, { passive: true });
+  setActive();
+</script>
+
+</body>
+</html>
