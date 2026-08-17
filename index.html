@@ -182,7 +182,7 @@
   }
   h3.sub:first-of-type { margin-top: 0; }
 
-  p { margin-bottom: 16px; color: var(--ink); }
+  p { margin-bottom: 16px; color: var(--ink); max-width: 68ch; text-align: justify; }
   p.lead { font-size: 1.06rem; }
 
   strong { color: var(--navy-deep); font-weight: 600; }
@@ -476,6 +476,7 @@
     <h2>The Analysis</h2>
   </div>
   <p class="section-dek">We modeled 200 synthetic prescriptions moving through this flow over a simulated month, with a single shared pharmacist resource, real insurance-type branching, and queueing built in — then mined the resulting event log in Disco.</p>
+  <h3 class="sub">Key Metrics</h3>
   <div class="metric-grid">
     <div class="metric-card">
       <div class="mnum">35%</div>
