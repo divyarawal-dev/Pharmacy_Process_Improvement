@@ -476,6 +476,20 @@
     <h2>The Analysis</h2>
   </div>
   <p class="section-dek">We modeled 200 synthetic prescriptions moving through this flow over a simulated month, with a single shared pharmacist resource, real insurance-type branching, and queueing built in — then mined the resulting event log in Disco.</p>
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="mnum">35%</div>
+      <div class="mlabel">Prescriptions that queued for the pharmacist</div>
+    </div>
+    <div class="metric-card">
+      <div class="mnum">48 min</div>
+      <div class="mlabel">Prior authorization delay — the primary bottleneck</div>
+    </div>
+    <div class="metric-card">
+      <div class="mnum">2 hrs</div>
+      <div class="mlabel">Longest path — rejection, doctor contact, resubmit</div>
+    </div>
+  </div>
 
   <h3 class="sub">Disco Maps</h3>
   <p>The frequency map below shows every path a prescription can take. Most (85%) follow one of the faster branches. But five distinct exception paths exist — and each one routes back through the pharmacist before a prescription can be filled.</p>
@@ -522,12 +536,6 @@
     <b>A modeling note.</b> This analysis isolates delay to exception paths and queueing for clarity. Real pharmacies also juggle multiple intake channels — walk-in, drive-thru, mail-order — competing for the same pharmacist, and staff regularly get pulled off one task mid-way through by a phone call or a walk-up question. Both would compound the queueing effect modeled here; we scoped to a single channel and didn't attempt to simulate task-switching, since neither changes the core finding.
   </div>
 
-  <h3 class="sub">Live Walkthrough</h3>
-  <p>A screen recording of Disco's animation view — cases flowing through the map in real time, showing exactly where volume piles up over a simulated day — will live here.</p>
-  <div class="video-placeholder">
-    <div class="vp-icon">▶</div>
-    <div class="vp-text">Animation walkthrough<br><span>Coming soon</span></div>
-  </div>
 </section>
 
 <section id="recommendation" class="wrap">
